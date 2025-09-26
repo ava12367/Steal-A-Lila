@@ -1,422 +1,741 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Steal-A-Lila — Profile</title>
-  <style>
-    :root{
-      --blue:#00b4ff;
-      --hotpink:#ff2dd4;
-      --neonyellow:#fff22b;
-      --bg-dark:#05060a;
-      --glass: rgba(255,255,255,0.06);
-      --card: rgba(255,255,255,0.04);
-      --glow: 0 8px 30px rgba(0,180,255,0.08), 0 0 18px rgba(255,45,212,0.06);
-      --radius:14px;
-      font-family: Inter, Roboto, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Steal-A-Lila — Profile</title>
+<style>
+  :root{
+    --blue:#00b4ff;
+    --hotpink:#ff2dd4;
+    --neonyellow:#fff22b;
+    --dark:#0b0710;
+    --glass: rgba(255,255,255,0.04);
+    --card: rgba(255,255,255,0.03);
+    font-family: Inter, Roboto, system-ui, -apple-system, "Segoe UI", Arial;
+  }
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,#ff2dd4 0%, #ff78c8 20%, #ffd6ed 40%); color:#0b0b0b;}
+  /* tie-dye swirl overlay */
+  .swirl {
+    position:fixed; inset:0; z-index:-2;
+    background:
+      radial-gradient(800px 300px at 15% 20%, rgba(0,180,255,0.12), transparent 12%),
+      radial-gradient(600px 360px at 80% 30%, rgba(255,242,43,0.09), transparent 12%),
+      conic-gradient(from 150deg at 50% 50%, rgba(255,45,212,0.12), rgba(0,180,255,0.08), rgba(255,242,43,0.05));
+    mix-blend-mode: screen;
+    filter: blur(16px) saturate(1.05);
+    opacity:0.98;
+  }
 
-    html,body{height:100%;margin:0;background:var(--bg-dark);color:#eaf6ff}
-    /* Swirling neon background */
-    .hero {
-      position:fixed;
-      inset:0;
-      overflow:hidden;
-      z-index:-2;
-      background:
-        radial-gradient(800px 400px at 10% 20%, rgba(255,45,212,0.12), transparent 10%),
-        radial-gradient(700px 450px at 85% 30%, rgba(0,180,255,0.12), transparent 12%),
-        radial-gradient(900px 500px at 50% 80%, rgba(255,242,43,0.085), transparent 10%),
-        linear-gradient(180deg,#05060a 0%, #060816 60%);
-      filter: saturate(1.1);
-    }
+  /* header */
+  header{
+    display:flex;align-items:center;justify-content:space-between;padding:12px 20px;position:relative;
+    backdrop-filter: blur(6px); 
+  }
+  .profile{
+    display:flex;gap:12px;align-items:center;
+  }
+  .avatar{
+    width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,var(--hotpink),var(--blue));
+    display:grid;place-items:center;font-weight:800;color:white;font-size:24px;border:3px solid rgba(255,255,255,0.12);
+  }
+  .profile .info{line-height:1}
+  .profile .name{font-weight:900}
+  .profile .handle{font-size:12px;color:rgba(11,11,11,0.7)}
 
-    /* Swirl overlay using SVG mask (faux swirl feel) */
-    .swirl {
-      position:absolute;
-      inset:0;
-      background:
-        conic-gradient(from 90deg at 40% 40%, rgba(255,45,212,0.06), rgba(0,180,255,0.06) 25%, rgba(255,242,43,0.04) 50%, rgba(255,45,212,0.06));
-      mix-blend-mode: screen;
-      opacity:0.95;
-      transform: rotate(10deg) scale(1.05);
-      filter: blur(12px) contrast(1.05);
-      z-index:-1;
-    }
+  .search-wrap{position:absolute;left:50%;transform:translateX(-50%);top:14px;width:min(760px,70%);}
+  .search{
+    display:flex;gap:8px;align-items:center;padding:10px;border-radius:999px;background:rgba(255,255,255,0.88);
+    box-shadow:0 6px 26px rgba(11,11,11,0.16);
+  }
+  .search input{flex:1;border:0;background:transparent;padding:8px 6px;font-size:15px;outline:none}
+  .search button{background:linear-gradient(90deg,var(--blue),var(--hotpink));border:0;padding:8px 14px;border-radius:10px;color:white;font-weight:800;cursor:pointer}
 
-    /* Center stage SVG (girl on podium) */
-    .stage {
-      position: absolute;
-      right:6%;
-      bottom:6%;
-      width:540px;
-      max-width:42%;
-      min-width:320px;
-      z-index:0;
-      transform: translateZ(0);
-      filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6));
-    }
+  .right-controls{display:flex;gap:10px;align-items:center}
+  .btn-ghost{background:transparent;border:1px solid rgba(0,0,0,0.08);padding:8px 12px;border-radius:10px}
+  .add-friend{background:linear-gradient(90deg,var(--hotpink),var(--neonyellow));padding:10px 14px;border-radius:12px;border:none;font-weight:900;cursor:pointer}
 
-    /* Top nav */
-    header {
-      position:relative;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:18px;
-      padding:18px 28px;
-      backdrop-filter: blur(6px) saturate(1.2);
-    }
+  main{display:flex;gap:18px;padding:18px;max-width:1400px;margin:40px auto 100px;align-items:start}
+  /* left column */
+  .col-left{width:320px;display:flex;flex-direction:column;gap:12px}
+  .card{background:rgba(255,255,255,0.92);border-radius:16px;padding:14px;box-shadow:0 10px 30px rgba(11,11,11,0.12);}
+  .small{font-size:13px;color:#222}
 
-    .nav-left {
-      display:flex;
-      gap:14px;
-      align-items:center;
-    }
+  /* center game area */
+  .arena{
+    flex:1;min-height:640px;border-radius:16px;padding:18px;position:relative;
+    background:linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+    box-shadow:0 20px 60px rgba(11,11,11,0.12); overflow:hidden;
+  }
 
-    .profile {
-      display:flex;
-      gap:12px;
-      align-items:center;
-    }
+  /* placeholder for realistic image.
+     Replace #hero-img with a real image or high-quality illustration you have the rights to.
+  */
+  .hero-img {
+    position:absolute; right:12px; top:12px; width:420px; height:420px; border-radius:14px;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.06));
+    display:grid;place-items:center; font-weight:800;color:#111;
+    border:5px solid rgba(255,255,255,0.06);
+    box-shadow:0 30px 80px rgba(11,11,11,0.25);
+  }
+  .hero-img .svg-placeholder{width:360px;height:360px}
 
-    .avatar {
-      width:68px;height:68px;border-radius:18px;
-      background: linear-gradient(135deg,var(--hotpink),var(--blue));
-      box-shadow: 0 4px 14px rgba(0,0,0,0.5), 0 0 20px rgba(255,45,212,0.12);
-      display:grid;place-items:center;font-weight:700;font-size:22px;color:white;
-      border:3px solid rgba(255,255,255,0.06);
-    }
+  /* Bases layout */
+  .bases{position:relative;width:100%;height:640px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:8px;padding:12px}
+  .base{
+    background:linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.84));
+    border-radius:12px;padding:10px;position:relative;overflow:hidden;border:1px solid rgba(11,11,11,0.06)
+  }
+  .base .label{position:absolute;left:50%;transform:translateX(-50%);top:6px;font-weight:900;padding:6px 10px;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--hotpink));color:white;box-shadow:0 6px 18px rgba(0,0,0,0.08)}
+  .slots{display:grid;grid-template-columns:repeat(6,1fr);gap:6px; margin-top:42px}
+  .slot{height:36px;border-radius:8px;background:linear-gradient(180deg,#fff,#ffe9ff);display:flex;align-items:center;justify-content:center;font-weight:800; font-size:11px;color:#222;border:1px dashed rgba(0,0,0,0.06);position:relative}
+  .slot.empty{opacity:0.35}
+  .slot .name{font-size:11px}
 
-    .profile-info {
-      line-height:1;
-    }
-    .profile-info .name {font-weight:700;font-size:18px}
-    .profile-info .tag {font-size:12px;color:rgba(234,246,255,0.7)}
+  .floating-username{position:absolute;top:40px;left:6px;font-weight:800;color:rgba(0,0,0,0.6)}
 
-    /* Center search */
-    .search-wrap {
-      position: absolute;
-      left:50%;
-      transform:translateX(-50%);
-      top:22px;
-      width:min(720px,66%);
-      display:flex;
-      justify-content:center;
-      z-index:10;
-    }
+  /* coin and brainrot badges */
+  .badge{display:inline-block;padding:6px 8px;border-radius:8px;font-weight:800}
+  .coin{background:linear-gradient(90deg,var(--neonyellow),#ffe37a)}
+  .brainrot{background:linear-gradient(90deg,var(--hotpink),var(--blue));color:white}
 
-    .search {
-      width:100%;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.015));
-      border-radius:40px;
-      padding:10px 16px;
-      box-shadow: var(--glow);
-      border: 1px solid rgba(255,255,255,0.04);
-    }
-    .search input{
-      flex:1;background:transparent;border:0;padding:10px 6px;color:inherit;font-size:15px;
-      outline:none;
-    }
-    .search .btn {
-      padding:8px 14px;border-radius:12px;border:0;background:linear-gradient(90deg,var(--blue),var(--hotpink));
-      color:white;font-weight:700;cursor:pointer;box-shadow: 0 6px 18px rgba(0,0,0,0.45);
-    }
+  /* lobby */
+  .lobby{display:flex;gap:12px;align-items:center;justify-content:center;padding:18px;border-radius:12px;background:linear-gradient(90deg,rgba(0,180,255,0.12),rgba(255,45,212,0.12));color:#061; font-weight:900}
 
-    /* Right controls */
-    .right-controls {
-      display:flex;gap:12px;align-items:center;
-    }
-    .btn-ghost {
-      padding:8px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit;
-    }
-    .add-friend {
-      background: linear-gradient(90deg,var(--hotpink),var(--neonyellow));
-      color:#080808;padding:10px 14px;border-radius:12px;font-weight:800;border:none;cursor:pointer;
-      box-shadow: 0 10px 30px rgba(255,45,212,0.08), 0 2px 6px rgba(0,0,0,0.45);
-    }
+  /* bottom bar / HUD */
+  .hud{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:linear-gradient(90deg,rgba(255,255,255,0.95),rgba(255,255,255,0.92));padding:10px 14px;border-radius:999px;box-shadow:0 14px 40px rgba(0,0,0,0.2)}
+  .controls{display:flex;gap:8px;align-items:center}
 
-    /* Main content */
-    main {
-      padding:110px 40px 60px 40px;
-    }
+  /* podium modal */
+  .podium{
+    position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.6));
+  }
+  .podium .box{background:white;padding:22px;border-radius:14px;width:90%;max-width:720px;text-align:center}
+  .podium .place{font-weight:900;padding:12px 0;font-size:18px}
+  .small-muted{font-size:12px;color:#333;margin-top:6px}
 
-    .grid {
-      display:grid;
-      grid-template-columns: 280px 1fr;
-      gap:22px;
-      align-items:start;
-      max-width:1200px;margin:0 auto;
-    }
-
-    /* Left sidebar */
-    .card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius:var(--radius); padding:18px; box-shadow:var(--glow); border:1px solid rgba(255,255,255,0.03);
-    }
-    .sidebar .stat {display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.02)}
-    .stat strong{font-size:18px}
-    .friends {display:flex;flex-direction:column;gap:10px;margin-top:12px}
-
-    /* Right content: game cards */
-    .games {
-      display:grid;
-      grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
-      gap:16px;
-    }
-    .game-card {
-      padding:16px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border:1px solid rgba(255,255,255,0.03); min-height:130px;position:relative;overflow:hidden;
-    }
-    .game-title{
-      display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px;
-    }
-    .game-meta{margin-top:8px;color:rgba(234,246,255,0.7);font-size:13px}
-
-    .neon-tag{
-      display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700;
-      background:linear-gradient(90deg,var(--blue),var(--hotpink));
-      color:white;box-shadow: 0 6px 18px rgba(255,45,212,0.06);
-      font-size:12px;margin-top:12px;
-    }
-
-    footer{opacity:0.7;text-align:center;padding:40px 0 80px;font-size:13px;color:rgba(234,246,255,0.75)}
-
-    /* Responsive */
-    @media (max-width:900px){
-      .grid{grid-template-columns:1fr; padding-bottom:80px}
-      .stage{position:fixed;right:4%;bottom:6%;width:44%}
-      .avatar{width:54px;height:54px}
-      .search-wrap{top:80px;left:50%;transform:translateX(-50%);width:86%}
-    }
-    @media (max-width:480px){
-      header{padding:12px}
-      .search-wrap{top:78px;width:92%}
-      .stage{display:none}
-      .avatar{width:46px;height:46px}
-    }
-  </style>
+  /* responsive */
+  @media (max-width:1000px){
+    main{flex-direction:column;padding:12px}
+    .hero-img{display:none}
+    .col-left{width:100%}
+  }
+</style>
 </head>
 <body>
 
-  <div class="hero"></div>
-  <div class="swirl" aria-hidden="true"></div>
+<div class="swirl" aria-hidden="true"></div>
 
-  <header>
-    <div class="nav-left">
-      <div class="profile">
-        <div class="avatar" title="Profile">L</div>
-        <div class="profile-info">
-          <div class="name">Lila💫</div>
-          <div class="tag">@steal-a-lila</div>
+<header>
+  <div class="profile">
+    <div class="avatar">L</div>
+    <div class="info">
+      <div class="name">Lila 💫</div>
+      <div class="handle">@steal-a-lila</div>
+    </div>
+  </div>
+
+  <div class="search-wrap" role="search" aria-label="Search">
+    <div class="search">
+      <input id="searchInput" placeholder="Search Steal-A-Lila servers, players and items...">
+      <button id="searchBtn">Search</button>
+    </div>
+  </div>
+
+  <div class="right-controls">
+    <button class="btn-ghost">Messages</button>
+    <button class="btn-ghost">Settings</button>
+    <button class="add-friend">+ Add Friends</button>
+  </div>
+</header>
+
+<main>
+  <div class="col-left">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-weight:900">Profile</div>
+          <div class="small">Steal-A-Brainrot theme</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:900;font-size:18px">Coins</div>
+          <div id="myCoins" style="font-weight:900">0</div>
         </div>
       </div>
-      <!-- quick nav -->
-      <nav style="margin-left:12px;display:flex;gap:10px;align-items:center;">
-        <button class="btn-ghost">Home</button>
-        <button class="btn-ghost">Profile</button>
-        <button class="btn-ghost">Inventory</button>
-      </nav>
-    </div>
-
-    <!-- search centered -->
-    <div class="search-wrap" role="search" aria-label="Search games">
-      <div class="search">
-        <input id="searchInput" placeholder="Search Steal-A-Lila servers, players and items..." aria-label="Search">
-        <button class="btn" id="searchBtn">Search</button>
+      <hr style="margin:10px 0">
+      <div style="display:flex;gap:8px">
+        <button class="btn-ghost" id="joinBtn">Join Queue</button>
+        <button class="btn-ghost" id="leaveBtn" disabled>Leave</button>
+      </div>
+      <div style="margin-top:10px;">
+        <div style="font-weight:900">Demo Controls</div>
+        <div class="small">Use Demo Speed to speed the round for testing</div>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+          <label class="small">Demo speed</label>
+          <select id="speedSelect">
+            <option value="1">Normal (1x)</option>
+            <option value="10">10x</option>
+            <option value="30" selected>30x (fast test)</option>
+            <option value="120">120x</option>
+          </select>
+        </div>
       </div>
     </div>
 
-    <div class="right-controls">
-      <button class="btn-ghost">Messages</button>
-      <button class="btn-ghost">Settings</button>
-      <button class="add-friend">+ Add Friends</button>
+    <div class="card">
+      <div style="font-weight:900">Lobby</div>
+      <div id="lobbyBox" class="lobby" style="margin-top:8px">Waiting area • Steal-A-Lila • 0 / 6</div>
+      <div style="margin-top:10px">
+        <div style="font-weight:900">Players in Queue</div>
+        <ul id="playerList" style="margin:8px 0;padding-left:16px"></ul>
+      </div>
     </div>
-  </header>
 
-  <main>
-    <div class="grid">
-      <aside class="sidebar card">
-        <h3 style="margin:0 0 10px 0">Profile Overview</h3>
-        <p style="margin:0 0 12px 0;color:rgba(234,246,255,0.75)">Welcome back, Lila — top 1 podium energy ✨</p>
-        <div class="stat"><span>Wins</span><strong>1,287</strong></div>
-        <div class="stat"><span>Followers</span><strong>12.3K</strong></div>
-        <div class="stat"><span>Friends</span><strong>142</strong></div>
-
-        <div style="margin-top:12px">
-          <h4 style="margin:0 0 8px 0">Friends</h4>
-          <div class="friends">
-            <div style="display:flex;gap:10px;align-items:center">
-              <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(90deg,var(--blue),var(--hotpink));display:grid;place-items:center;font-weight:700">A</div>
-              <div style="flex:1">ali_gamer <span style="color:rgba(234,246,255,0.6)">• Online</span></div>
-              <button class="btn-ghost" style="padding:6px 8px">View</button>
-            </div>
-            <div style="display:flex;gap:10px;align-items:center">
-              <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(90deg,var(--hotpink),var(--neonyellow));display:grid;place-items:center;font-weight:700">S</div>
-              <div style="flex:1">sneakyL <span style="color:rgba(234,246,255,0.6)">• Offline</span></div>
-              <button class="btn-ghost" style="padding:6px 8px">View</button>
-            </div>
-          </div>
-        </div>
-
-        <div style="margin-top:14px">
-          <h4 style="margin:0 0 8px 0">Quick Actions</h4>
-          <div style="display:flex;gap:8px;">
-            <button class="btn-ghost" style="flex:1">Create Lobby</button>
-            <button class="btn-ghost" style="flex:1">Invite</button>
-          </div>
-        </div>
-      </aside>
-
-      <section>
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
-          <h2 style="margin:0">Your Games</h2>
-          <span class="neon-tag">Steal-A-Lila (All)</span>
-          <div style="margin-left:auto;color:rgba(234,246,255,0.7)">Current Server: <strong>US-East #1</strong></div>
-        </div>
-
-        <div class="games" id="gamesList">
-          <!-- Repeating game cards - all called Steal-A-Lila -->
-          <!-- We'll render a grid of servers/games named Steal-A-Lila -->
-        </div>
-
-        <footer>
-          Made with neon vibes • Roblox-styled profile • Hosted on GitHub Pages
-        </footer>
-      </section>
+    <div class="card small">
+      <div style="font-weight:900;margin-bottom:8px">Rules / Notes</div>
+      <ul>
+        <li>Each round: 6 players, 15 minutes (real). Demo speed speeds it up for testing.</li>
+        <li>Each base has 12 slots to hold brainrots.</li>
+        <li>Lock your base (70s) to prevent stealing.</li>
+        <li>Steal a brainrot by clicking on another player's brainrot; then return to your base and place it in an empty slot.</li>
+        <li>Coins spawn on map; 5 points per coin. Use coins to buy brainrots.</li>
+        <li>1st/2nd/3rd podium awards 50/25/15 coins.</li>
+      </ul>
     </div>
-  </main>
+  </div>
 
-  <!-- Stylized vector "girl on podium" illustration embedded as SVG -->
-  <svg class="stage" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <!-- podium -->
-    <defs>
-      <linearGradient id="pod" x1="0" x2="1">
-        <stop offset="0" stop-color="#111827"/>
-        <stop offset="1" stop-color="#0b1220"/>
-      </linearGradient>
-      <radialGradient id="hair" cx="30%" cy="20%">
-        <stop offset="0" stop-color="#ffe08a"/>
-        <stop offset="1" stop-color="#ffd65a"/>
-      </radialGradient>
-    </defs>
+  <div class="arena card">
+    <!-- hero image placeholder (replace with real image if you have it) -->
+    <div class="hero-img" id="heroImg" title="Replace this with your realistic image if you own it">
+      <!-- Simple stylized placeholder. Replace with <img src="your_image.jpg"> if you have rights. -->
+      <svg class="svg-placeholder" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration placeholder">
+        <defs>
+          <linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#fff0c9"/><stop offset="1" stop-color="#ffd65a"/></linearGradient>
+        </defs>
+        <rect rx="18" width="320" height="320" fill="url(#g1)"/>
+        <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" font-size="18" font-weight="800" fill="#2b2b2b">Stylized portrait placeholder</text>
+        <text x="50%" y="62%" dominant-baseline="middle" text-anchor="middle" font-size="11" fill="#2b2b2b">Replace this with your realistic image (must be user-owned)</text>
+      </svg>
+    </div>
 
-    <rect x="0" y="0" width="600" height="600" rx="18" fill="transparent"/>
+    <!-- bases grid 6 -->
+    <div class="bases" id="bases">
+      <!-- bases rendered by JS -->
+    </div>
 
-    <!-- podium blocks -->
-    <g transform="translate(40,260)">
-      <rect x="80" y="160" width="160" height="90" rx="10" fill="url(#pod)"/>
-      <text x="160" y="230" font-size="42" text-anchor="middle" fill="#fff" font-weight="800">1</text>
-      <rect x="0" y="190" width="60" height="60" rx="8" fill="#0b1220" opacity="0.7"/>
-      <rect x="260" y="200" width="80" height="50" rx="8" fill="#0b1220" opacity="0.7"/>
-    </g>
+    <div class="hud" role="status">
+      <div class="controls">
+        <div class="small">Game time left: <span id="timeLeft">—</span></div>
+        <div style="width:10px"></div>
+        <button class="btn-ghost" id="lockBaseBtn" title="Lock your base for 70s">Lock My Base</button>
+        <button class="btn-ghost" id="buyBrainBtn">Buy Brainrot (5 coins)</button>
+      </div>
+    </div>
 
-    <!-- stylized girl -->
-    <g transform="translate(170,80) scale(0.85)">
+  </div>
 
-      <!-- shadow under feet -->
-      <ellipse cx="160" cy="300" rx="140" ry="28" fill="rgba(0,0,0,0.45)"/>
+</main>
 
-      <!-- body -->
-      <g transform="translate(80,50)">
-        <!-- legs / shorts -->
-        <rect x="110" y="230" width="60" height="80" rx="12" fill="#ff7fbe" />
-        <rect x="40" y="230" width="60" height="80" rx="12" fill="#ff7fbe" />
-        <!-- shorts pattern: ice cream -->
-        <g fill="#fff" opacity="0.9">
-          <circle cx="70" cy="260" r="6"/>
-          <circle cx="125" cy="255" r="5"/>
-          <circle cx="95" cy="275" r="6"/>
-        </g>
+<!-- podium modal -->
+<div class="podium" id="podiumModal" role="dialog" aria-hidden="true">
+  <div class="box">
+    <div style="font-size:22px;font-weight:900">Round Results</div>
+    <div id="podiumResults" style="margin-top:12px"></div>
+    <div style="margin-top:18px"><button id="closePod" class="btn-ghost">Close</button></div>
+  </div>
+</div>
 
-        <!-- torso: 67 shirt -->
-        <rect x="30" y="120" width="200" height="130" rx="18" fill="#f9f3e7"/>
-        <text x="130" y="200" font-size="46" text-anchor="middle" font-weight="900" fill="#0b1220">67</text>
+<script>
+/* Simple in-browser demo game engine
+   - Single-file demo suitable for GitHub Pages
+   - Important: for production hooking up with real multiplayer backend is required.
+*/
 
-        <!-- left arm -->
-        <rect x="-10" y="140" width="40" height="18" rx="10" fill="#d49b6a"/>
+// CONFIG
+const GAME_PLAYERS = 6;
+const SLOTS_PER_BASE = 12;
+const ROUND_SECONDS = 15 * 60; // 15 minutes real-time
+const BASE_LOCK_SECONDS = 70;
+const BRAINROT_COST = 5; // coins cost
+const COIN_VALUE = 5; // each coin is 5 points (as requested)
+const BRAINROT_SPAWN_SECONDS = 2; // new brainrots appear every 2s for purchase spawn pool (not auto assign)
+const COIN_SPAWN_SECONDS = 3;
+const COIN_LIFETIME = 60; // seconds
+const BAT_LIFETIME = 40;
 
-        <!-- right arm holding Roblox logo -->
-        <rect x="230" y="134" width="40" height="18" rx="10" fill="#d49b6a"/>
-        <!-- hand holding logo -->
-        <circle cx="270" cy="143" r="10" fill="#d49b6a"/>
+// Demo controls: speed multiplier from UI
+let speedMultiplier = Number(document.getElementById('speedSelect').value) || 30; // default fast for demo
 
-        <!-- head -->
-        <g transform="translate(80,0)">
-          <circle cx="80" cy="60" r="60" fill="#d49b6a"/> <!-- tan skin -->
-          <!-- hair -->
-          <path d="M20 40 C10 10, 140 10, 120 40 C180 20, 180 120, 80 120 C20 120, 10 80, 20 40" fill="url(#hair)"/>
-          <!-- eyes -->
-          <circle cx="60" cy="60" r="8" fill="#6ec3ff"/>
-          <circle cx="100" cy="60" r="8" fill="#6ec3ff"/>
-          <circle cx="63" cy="57" r="2" fill="#042"/>
-          <circle cx="103" cy="57" r="2" fill="#042"/>
-          <!-- pearl earrings -->
-          <circle cx="32" cy="82" r="6" fill="#ffffff" stroke="#e8f7ff" stroke-width="2"/>
-          <circle cx="128" cy="82" r="6" fill="#ffffff" stroke="#e8f7ff" stroke-width="2"/>
-          <!-- smile -->
-          <path d="M60 85 Q80 100 100 85" stroke="#662d00" stroke-width="3" fill="none" stroke-linecap="round"/>
-        </g>
-      </g>
+document.getElementById('speedSelect').addEventListener('change', e=>{
+  speedMultiplier = Number(e.target.value);
+});
 
-      <!-- Roblox logo held in hand (simple R-in-square) -->
-      <g transform="translate(270,180) scale(0.9)">
-        <rect x="0" y="0" width="56" height="56" rx="6" fill="#e21f26" stroke="#fff" stroke-width="2"/>
-        <text x="28" y="40" font-size="40" text-anchor="middle" font-weight="900" fill="#fff" transform="rotate(-8 28 28)">R</text>
-      </g>
+// state
+let my = {
+  id: 'you',
+  username: 'You',
+  coins: 0,
+  carrying: null, // {id,name,from}
+  baseIndex: null // assigned once game starts
+};
 
-      <!-- sparkle accents -->
-      <g transform="translate(20,10)" opacity="0.9">
-        <circle cx="10" cy="10" r="3" fill="var(--neonyellow)" />
-        <circle cx="260" cy="40" r="4" fill="var(--hotpink)" />
-        <circle cx="220" cy="200" r="5" fill="var(--blue)" />
-      </g>
+const players = []; // players currently in queue or in game
+const queue = []; // queued players (for UI)
+const bases = []; // base objects
 
-    </g>
+const ui = {
+  basesEl: document.getElementById('bases'),
+  lobbyBox: document.getElementById('lobbyBox'),
+  playerList: document.getElementById('playerList'),
+  myCoins: document.getElementById('myCoins'),
+  timeLeft: document.getElementById('timeLeft'),
+  podiumModal: document.getElementById('podiumModal'),
+  podiumResults: document.getElementById('podiumResults')
+};
 
-  </svg>
+// helper utilities
+function uid(prefix='id'){return prefix+Math.random().toString(36).slice(2,9)}
+function randName(){ const a=['Lilaca','Buda','Baca','Snoopy','Mochi','Zuzu','Nori','Puffy','Tiki','Bibi','Riri','Kiki']; const b=['budabaca','fluff','drip','pop','blink','swirl','glint','sprout']; return a[Math.floor(Math.random()*a.length)]+' '+b[Math.floor(Math.random()*b.length)]+Math.floor(Math.random()*99)}
 
-  <script>
-    // Populate many game cards (all named Steal-A-Lila)
-    const gamesList = document.getElementById('gamesList');
-    const count = 9;
-    for(let i=1;i<=count;i++){
-      const card = document.createElement('div');
-      card.className = 'game-card';
-      card.innerHTML = `
-        <div class="game-title">
-          <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(90deg,var(--blue),var(--hotpink));display:grid;place-items:center;font-weight:900">SA</div>
-          <div>
-            <div style="font-weight:900">Steal-A-Lila</div>
-            <div style="font-size:12px;color:rgba(234,246,255,0.7)">Server #${i} • ${Math.floor(Math.random()*600)} players</div>
-          </div>
-        </div>
-        <div class="game-meta">A bright pink & neon blue arena where players try to steal the Lila crown — winner takes the podium.</div>
-        <div style="position:absolute;right:12px;bottom:12px;">
-          <button class="btn-ghost" style="padding:8px 10px">Join</button>
-        </div>
-      `;
-      gamesList.appendChild(card);
+// initialize UI
+function renderLobby(){
+  ui.lobbyBox.textContent = `Waiting area • Steal-A-Lila • ${players.length} / ${GAME_PLAYERS}`;
+  ui.playerList.innerHTML = '';
+  players.forEach(p=>{
+    const li = document.createElement('li');
+    li.textContent = p.username + (p.id === my.id ? ' (You)' : '');
+    ui.playerList.appendChild(li);
+  });
+  ui.myCoins.textContent = my.coins;
+}
+
+// create 6 bases
+function initBases(){
+  ui.basesEl.innerHTML = '';
+  bases.length = 0;
+  for(let i=0;i<GAME_PLAYERS;i++){
+    const base = {
+      index:i,
+      id: 'base-'+i,
+      owner: null, // assigned when players join the game
+      lockedUntil: 0,
+      slots: Array.from({length:SLOTS_PER_BASE}, ()=>null) // each slot: brainrot or null
+    };
+    bases.push(base);
+    const baseEl = document.createElement('div');
+    baseEl.className = 'base';
+    baseEl.id = 'base-el-'+i;
+    baseEl.innerHTML = `
+      <div class="label" id="base-label-${i}">Base ${i+1}</div>
+      <div class="floating-username" id="base-user-${i}">—</div>
+      <div class="slots" id="slots-${i}"></div>
+      <div style="position:absolute;right:8px;bottom:8px;display:flex;gap:6px">
+        <div id="coins-${i}" class="badge coin small-muted">0</div>
+        <button class="btn-ghost" id="stealbtn-${i}">Steal from this base</button>
+      </div>
+    `;
+    ui.basesEl.appendChild(baseEl);
+
+    // fill slots
+    const slotsEl = baseEl.querySelector('#slots-'+i);
+    for(let s=0;s<SLOTS_PER_BASE;s++){
+      const slotEl = document.createElement('div');
+      slotEl.className = 'slot empty';
+      slotEl.id = `slot-${i}-${s}`;
+      slotEl.innerHTML = `<div class="name">empty</div>`;
+      slotsEl.appendChild(slotEl);
+
+      // place action: if carrying brainrot, click to place it
+      slotEl.addEventListener('click', ()=> {
+        if(!my.carrying) return;
+        if(base.owner && base.owner.id !== my.id) {
+          alert('You can only place brainrots in your own base!');
+          return;
+        }
+        // place if empty
+        if(base.slots[s]) { alert('Slot occupied'); return;}
+        base.slots[s] = my.carrying;
+        // if placed, clear carrying
+        my.carrying = null;
+        updateSlotUI(i,s);
+        renderHud();
+      });
     }
 
-    // search sample action
-    document.getElementById('searchBtn').addEventListener('click', ()=> {
-      const q = document.getElementById('searchInput').value.trim() || 'Steal-A-Lila';
-      alert('Searching: ' + q + ' (this is a demo UI — integrate your search backend to make it real)');
+    // steal button: choose a brainrot randomly from that base if available
+    baseEl.querySelector('#stealbtn-'+i).addEventListener('click', ()=>{
+      if(!isInGame(my.id)) { alert('You must be in the game to steal'); return; }
+      if(bases[i].owner && bases[i].owner.id === my.id) { alert('Cannot steal from your own base'); return; }
+      attemptStealFromBase(i);
     });
+  }
+}
 
-    // quick keyboard shortcut: press F to focus search
-    document.addEventListener('keydown', (e)=> {
-      if(e.key.toLowerCase() === 'f' && !/input|textarea/i.test(document.activeElement.tagName)) {
-        e.preventDefault();
-        document.getElementById('searchInput').focus();
+// UI update helpers
+function updateSlotUI(baseIndex, slotIndex){
+  const slotEl = document.getElementById(`slot-${baseIndex}-${slotIndex}`);
+  const slot = bases[baseIndex].slots[slotIndex];
+  if(slot){
+    slotEl.classList.remove('empty');
+    slotEl.innerHTML = `<div style="display:flex;gap:8px;align-items:center"><div class="brainrot badge brainrot">${slot.name.split(' ')[0]}</div><div class="name">${slot.name}</div></div>`;
+    // mark that this slot can be stolen if base not locked
+  } else {
+    slotEl.classList.add('empty');
+    slotEl.innerHTML = `<div class="name">empty</div>`;
+  }
+}
+
+function renderBases(){
+  bases.forEach((b,i)=>{
+    const ownerName = b.owner ? b.owner.username : 'Unassigned';
+    document.getElementById('base-user-'+i).textContent = b.owner ? b.owner.username : '—';
+    document.getElementById('base-label-'+i).textContent = (b.owner ? b.owner.username + "'s Base" : 'Base '+(i+1));
+    // slots
+    for(let s=0;s<SLOTS_PER_BASE;s++){
+      updateSlotUI(i,s);
+    }
+    // coin count display (for demo: coins in base = number of brainrots * 5)
+    const count = b.slots.filter(x=>x).length * COIN_VALUE;
+    document.getElementById('coins-'+i).textContent = `${count} pts`;
+  });
+}
+
+// simple check if a player is in current game
+function isInGame(playerId){
+  return players.some(p=>p.id===playerId && p.inGame);
+}
+
+// queue/join/leave logic
+document.getElementById('joinBtn').addEventListener('click', ()=>{
+  if(players.some(p=>p.id===my.id)) return;
+  const p = {id:my.id, username:my.username, inGame:false, coins:0, score:0};
+  players.push(p);
+  renderLobby();
+  tryStartIfReady();
+});
+
+document.getElementById('leaveBtn').addEventListener('click', ()=>{
+  for(let i=0;i<players.length;i++){
+    if(players[i].id===my.id){ players.splice(i,1); break; }
+  }
+  renderLobby();
+  document.getElementById('leaveBtn').disabled = true;
+});
+
+// search button (UI only)
+document.getElementById('searchBtn').addEventListener('click', ()=> {
+  alert('Search demo: searches are not connected to a backend in this demo.');
+});
+
+// game engine loop & spawns
+let tickInterval = null;
+let lastTick = Date.now();
+let roundEndTime = 0;
+let roundRunning = false;
+let spawnTimers = {coin:0,brain:0};
+
+// start round when 6 players joined
+function tryStartIfReady(){
+  if(players.length >= GAME_PLAYERS && !roundRunning){
+    // mark first GAME_PLAYERS as in-game
+    for(let i=0;i<GAME_PLAYERS;i++){
+      players[i].inGame = true;
+      players[i].score = 0;
+      // assign to bases
+      bases[i].owner = players[i];
+      players[i].baseIndex = i;
+      // give each player a few brainrots initially
+      for(let s=0;s<3 && s<SLOTS_PER_BASE;s++){
+        const br = {id:uid('b'), name: randName(), ownerId: players[i].id};
+        bases[i].slots[s] = br;
+      }
+    }
+    // others (if more) remain queued — but for this demo we limit to exactly GAME_PLAYERS
+    renderBases();
+    roundStart();
+  } else {
+    renderLobby();
+  }
+}
+
+// round start
+function roundStart(){
+  roundRunning = true;
+  const now = Date.now();
+  roundEndTime = now + (ROUND_SECONDS*1000)/speedMultiplier;
+  spawnTimers = {coin:0,brain:0};
+  lastTick = now;
+  // enable leave button
+  document.getElementById('leaveBtn').disabled = false;
+  // if you are not in the game, but in players, add dummy bots to fill slots (for demo)
+  if(!players.some(p=>p.id===my.id)){
+    // add you as a spectator (if you didn't join)
+    // no-op for now
+  }
+  // start tick
+  if(tickInterval) clearInterval(tickInterval);
+  tickInterval = setInterval(tick, 250); // game tick
+  renderLobby();
+}
+
+// round end
+function roundEnd(){
+  roundRunning = false;
+  if(tickInterval) clearInterval(tickInterval);
+  // compute podium by score
+  const ranking = players.filter(p=>p.inGame).slice().sort((a,b)=>b.score-a.score);
+  if(ranking[0]) ranking[0].coins = (ranking[0].coins||0) + 50;
+  if(ranking[1]) ranking[1].coins = (ranking[1].coins||0) + 25;
+  if(ranking[2]) ranking[2].coins = (ranking[2].coins||0) + 15;
+  // show podium results
+  ui.podiumResults.innerHTML = '';
+  ranking.slice(0,6).forEach((p,i)=>{
+    const div = document.createElement('div');
+    div.className = 'place';
+    div.innerHTML = `<div style="font-weight:900">${i+1}. ${p.username || 'Player'}</div><div class="small-muted">Score: ${p.score || 0} • Coins: ${p.coins||0}</div>`;
+    ui.podiumResults.appendChild(div);
+  });
+  ui.podiumModal.style.display = 'flex';
+  ui.podiumModal.setAttribute('aria-hidden','false');
+
+  // reset base owners and slots (clear)
+  bases.forEach(b=>{
+    b.owner = null;
+    b.lockedUntil = 0;
+    b.slots = Array.from({length:SLOTS_PER_BASE}, ()=>null);
+  });
+  renderBases();
+  renderLobby();
+  document.getElementById('leaveBtn').disabled = true;
+}
+
+// close podium
+document.getElementById('closePod').addEventListener('click', ()=>{
+  ui.podiumModal.style.display = 'none';
+  ui.podiumModal.setAttribute('aria-hidden','true');
+});
+
+// main tick
+function tick(){
+  const now = Date.now();
+  const dt = (now-lastTick)/1000 * speedMultiplier; // scaled seconds
+  lastTick = now;
+  if(roundRunning){
+    // update timers, spawn coins & brainrot "shop" pool
+    spawnTimers.coin += dt;
+    spawnTimers.brain += dt;
+    if(spawnTimers.coin >= COIN_SPAWN_SECONDS){
+      spawnTimers.coin = 0;
+      spawnCoin();
+    }
+    if(spawnTimers.brain >= BRAINROT_SPAWN_SECONDS){
+      spawnTimers.brain = 0;
+      // spawn brainrot into a random base's free slot (shop pool is simplified)
+      spawnBrainrotPool();
+    }
+
+    // decrement locks
+    bases.forEach(b=>{
+      if(b.lockedUntil && now >= b.lockedUntil){
+        b.lockedUntil = 0;
       }
     });
 
-  </script>
+    // update UI timers
+    const remainMs = Math.max(0, roundEndTime - now);
+    const remainSec = Math.ceil(remainMs/1000);
+    ui.timeLeft.textContent = formatTime(remainSec);
+    if(remainSec <= 0){
+      roundEnd();
+    }
+
+    // for demo: award points to players based on number of brainrots in their base
+    players.forEach(p=>{
+      if(p.inGame){
+        const b = bases[p.baseIndex];
+        const count = b.slots.filter(x=>x).length;
+        p.score = count * 10; // each brainrot 10 points
+      }
+    });
+  } else {
+    ui.timeLeft.textContent = '—';
+  }
+  renderBases();
+  renderHud();
+}
+
+// format time
+function formatTime(s){
+  const mm = Math.floor(s/60).toString().padStart(2,'0');
+  const ss = Math.floor(s%60).toString().padStart(2,'0');
+  return mm+':'+ss;
+}
+
+// spawn coin: creates clickable coin element overlayed on arena which can be collected by clicking
+function spawnCoin(){
+  const coinEl = document.createElement('div');
+  coinEl.className = 'badge coin';
+  coinEl.style.position = 'absolute';
+  // random position inside arena container
+  const arenaRect = document.querySelector('.arena').getBoundingClientRect();
+  const x = Math.random() * (arenaRect.width - 120) + 20;
+  const y = Math.random() * (arenaRect.height - 160) + 20;
+  coinEl.style.left = x + 'px';
+  coinEl.style.top = y + 'px';
+  coinEl.style.cursor = 'pointer';
+  coinEl.textContent = 'coin';
+  document.querySelector('.arena').appendChild(coinEl);
+
+  const ts = Date.now();
+  coinEl.addEventListener('click', ()=>{
+    // collect: give coins to player if in game
+    if(!isInGame(my.id)){ alert('You must be in the game to collect coins'); coinEl.remove(); return;}
+    my.coins += COIN_VALUE;
+    document.getElementById('myCoins').textContent = my.coins;
+    coinEl.remove();
+  });
+  // auto remove after lifetime
+  setTimeout(()=>{ if(coinEl.parentNode) coinEl.remove(); }, (COIN_LIFETIME*1000)/speedMultiplier);
+}
+
+// spawn Brainrot into a random base empty slot (for demo, it's like new ones appear for players to buy/place)
+function spawnBrainrotPool(){
+  // choose random base
+  const idx = Math.floor(Math.random()*bases.length);
+  const base = bases[idx];
+  // try to place into a free slot OR skip
+  for(let s=0;s<SLOTS_PER_BASE;s++){
+    if(!base.slots[s]){
+      base.slots[s] = {id: uid('b'), name: randName(), ownerId: base.owner ? base.owner.id : null};
+      updateSlotUI(idx,s);
+      break;
+    }
+  }
+}
+
+// attempt steal from base: choose a random occupied slot that is stealable
+function attemptStealFromBase(baseIndex){
+  const base = bases[baseIndex];
+  if(base.lockedUntil && Date.now() < base.lockedUntil){
+    alert('This base is locked and cannot be stolen from yet.');
+    return;
+  }
+  // find a non-empty slot
+  const occupiedIndices = base.slots.map((v,i)=>v?i:null).filter(i=>i!==null);
+  if(occupiedIndices.length === 0){ alert('No brainrots to steal here!'); return; }
+  // pick first occupied for demo
+  const slotI = occupiedIndices[Math.floor(Math.random()*occupiedIndices.length)];
+  const br = base.slots[slotI];
+  // remove from base and give to player (carrying)
+  if(my.carrying){ alert('You are already carrying a brainrot. Place it in your base first.'); return; }
+  base.slots[slotI] = null;
+  my.carrying = br;
+  my.carrying.from = baseIndex;
+  alert(`You stole "${br.name}" from ${base.owner ? base.owner.username : 'Unknown'}! Now return to your base and click an empty slot to place it.`);
+  renderBases();
+}
+
+// lock my base
+document.getElementById('lockBaseBtn').addEventListener('click', ()=>{
+  // must be in game
+  if(!isInGame(my.id)){ alert('Join the game to lock your base.'); return; }
+  const idx = bases.findIndex(b=>b.owner && b.owner.id===my.id);
+  if(idx === -1){ alert('Cannot find your base'); return; }
+  bases[idx].lockedUntil = Date.now() + (BASE_LOCK_SECONDS*1000)/speedMultiplier;
+  alert(`Your base locked for ${BASE_LOCK_SECONDS} seconds (scaled by demo speed in testing).`);
+});
+
+// buy brainrot
+document.getElementById('buyBrainBtn').addEventListener('click', ()=>{
+  if(my.coins < BRAINROT_COST){ alert('Not enough coins'); return; }
+  // place in first empty slot in your base
+  const idx = bases.findIndex(b=>b.owner && b.owner.id===my.id);
+  if(idx === -1){ alert('You need to be in the game to plant bought brainrots'); return;}
+  const base = bases[idx];
+  const slotIdx = base.slots.findIndex(s=>!s);
+  if(slotIdx === -1){ alert('No empty slots in your base'); return; }
+  my.coins -= BRAINROT_COST;
+  document.getElementById('myCoins').textContent = my.coins;
+  const br = {id: uid('b'), name: randName(), ownerId: my.id};
+  base.slots[slotIdx] = br;
+  renderBases();
+});
+
+// utility: add dummy players to fill game for demo automatically (so you can demo without inviting real people)
+function fillWithBots(){
+  while(players.length < GAME_PLAYERS){
+    const p = {id: uid('bot'), username: 'Bot_'+Math.random().toString(36).slice(2,6), inGame:false, coins:0, score:0};
+    players.push(p);
+  }
+  renderLobby();
+  tryStartIfReady();
+}
+
+// simple "steal by clicking slot" alternative: clicking an occupied slot steals if allowed & you're in game
+document.addEventListener('click', (e)=>{
+  if(e.target.closest('.slot')){
+    const slotEl = e.target.closest('.slot');
+    const parts = slotEl.id.split('-'); // slot-<base>-<s>
+    if(parts.length===3){
+      const bi = Number(parts[1]), si = Number(parts[2]);
+      const slot = bases[bi].slots[si];
+      if(slot && isInGame(my.id)){
+        // can't steal from own base
+        if(bases[bi].owner && bases[bi].owner.id === my.id) return;
+        // check lock
+        if(bases[bi].lockedUntil && Date.now() < bases[bi].lockedUntil){
+          alert('Base is locked!');
+          return;
+        }
+        // steal
+        if(my.carrying){ alert('Place your current brainrot first'); return; }
+        const br = slot;
+        bases[bi].slots[si] = null;
+        my.carrying = br;
+        my.carrying.from = bi;
+        alert(`You stole "${br.name}" from ${bases[bi].owner ? bases[bi].owner.username : 'Player'}! Place it in your base.`);
+        renderBases();
+      }
+    }
+  }
+});
+
+// helper: determine if current player is owner of any base, otherwise assign them when round starts
+function assignMyBaseIfNeeded(){
+  const myBaseIdx = bases.findIndex(b=>b.owner && b.owner.id===my.id);
+  if(myBaseIdx !== -1) my.baseIndex = myBaseIdx;
+}
+
+// simple scoreboard refresh
+function renderHud(){
+  document.getElementById('myCoins').textContent = my.coins;
+  assignMyBaseIfNeeded();
+  renderLobby();
+}
+
+// helper: check if player is present; if not, add them in queue when clicking join queue (for demo)
+document.getElementById('joinBtn').addEventListener('click', ()=>{
+  // if bots fill logic: add bots to fill
+  // add you explicitly in players list if not present
+  if(!players.some(p=>p.id===my.id)){
+    const p = {id:my.id, username:my.username, inGame:false, coins:0, score:0};
+    players.push(p);
+  }
+  // fill bots if less than needed
+  fillWithBots();
+});
+
+// small init
+initBases();
+renderBases();
+renderLobby();
+renderHud();
+tick(); // initial render
+
+// for convenience, expose some functions to window for manual testing
+window.__game = {players,bases,my,tryStartIfReady,roundStart,roundEnd};
+
+</script>
 </body>
 </html>
