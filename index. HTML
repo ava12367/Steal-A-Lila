@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Steal-A-Lila — Profile</title>
+<style>
+  :root{
+    --blue:#00b4ff;
+    --hotpink:#ff2dd4;
+    --neonyellow:#fff22b;
+    --dark:#0b0710;
+    --glass: rgba(255,255,255,0.04);
+    --card: rgba(255,255,255,0.03);
+    font-family: Inter, Roboto, system-ui, -apple-system, "Segoe UI", Arial;
+  }
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,#ff2dd4 0%, #ff78c8 20%, #ffd6ed 40%); color:#0b0b0b;}
+  /* tie-dye swirl overlay */
+  .swirl {
+    position:fixed; inset:0; z-index:-2;
+    background:
+      radial-gradient(800px 300px at 15% 20%, rgba(0,180,255,0.12), transparent 12%),
+      radial-gradient(600px 360px at 80% 30%, rgba(255,242,43,0.09), transparent 12%),
+      conic-gradient(from 150deg at 50% 50%, rgba(255,45,212,0.12), rgba(0,180,255,0.08), rgba(255,242,43,0.05));
+    mix-blend-mode: screen;
+    filter: blur(16px) saturate(1.05);
+    opacity:0.98;
+  }
+
+  /* header */
+  header{
+    display:flex;align-items:center;justify-content:space-between;padding:12px 20px;position:relative;
+    backdrop-filter: blur(6px); 
+  }
+  .profile{
+    display:flex;gap:12px;align-items:center;
+  }
+  .avatar{
+    width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,var(--hotpink),var(--blue));
+    display:grid;place-items:center;font-weight:800;color:white;font-size:24px;border:3px solid rgba(255,255,255,0.12);
+  }
+  .profile .info{line-height:1}
+  .profile .name{font-weight:900}
+  .profile .handle{font-size:12px;color:rgba(11,11,11,0.7)}
+
+  .search-wrap{position:absolute;left:50%;transform:translateX(-50%);top:14px;width:min(760px,70%);}
+  .search{
+    display:flex;gap:8px;align-items:center;padding:10px;border-radius:999px;background:rgba(255,255,255,0.88);
+    box-shadow:0 6px 26px rgba(11,11,11,0.16);
+  }
+  .search input{flex:1;border:0;background:transparent;padding:8px 6px;font-size:15px;outline:none}
+  .search button{background:linear-gradient(90deg,var(--blue),var(--hotpink));border:0;padding:8px 14px;border-radius:10px;color:white;font-weight:800;cursor:pointer}
+
+  .right-controls{display:flex;gap:10px;align-items:center}
+  .btn-ghost{background:transparent;border:1px solid rgba(0,0,0,0.08);padding:8px 12px;border-radius:10px}
+  .add-friend{background:linear-gradient(90deg,var(--hotpink),var(--neonyellow));padding:10px 14px;border-radius:12px;border:none;font-weight:900;cursor:pointer}
+
+  main{display:flex;gap:18px;padding:18px;max-width:1400px;margin:40px auto 100px;align-items:start}
+  /* left column */
+  .col-left{width:320px;display:flex;flex-direction:column;gap:12px}
+  .card{background:rgba(255,255,255,0.92);border-radius:16px;padding:14px;box-shadow:0 10px 30px rgba(11,11,11,0.12);}
+  .small{font-size:13px;color:#222}
+
+  /* center game area */
+  .arena{
+    flex:1;min-height:640px;border-radius:16px;padding:18px;position:relative;
+    background:linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+    box-shadow:0 20px 60px rgba(11,11,11,0.12); overflow:hidden;
+  }
+
+  /* placeholder for realistic image.
+     Replace #hero-img with a real image or high-quality illustration you have the rights to.
+  */
+  .hero-img {
+    position:absolute; right:12px; top:12px; width:420px; height:420px; border-radius:14px;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.06));
+    display:grid;place-items:center; font-weight:800;color:#111;
+    border:5px solid rgba(255,255,255,0.06);
+    box-shadow:0 30px 80px rgba(11,11,11,0.25);
+  }
+  .hero-img .svg-placeholder{width:360px;height:360px}
+
+  /* Bases layout */
+  .bases{position:relative;width:100%;height:640px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:8px;padding:12px}
+  .base{
+    background:linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.84));
+    border-radius:12px;padding:10px;position:relative;overflow:hidden;border:1px solid rgba(11,11,11,0.06)
+  }
+  .base .label{position:absolute;left:50%;transform:translateX(-50%);top:6px;font-weight:900;padding:6px 10px;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--hotpink));color:white;box-shadow:0 6px 18px rgba(0,0,0,0.08)}
+  .slots{display:grid;grid-template-columns:repeat(6,1fr);gap:6px; margin-top:42px}
+  .slot{height:36px;border-radius:8px;background:linear-gradient(180deg,#fff,#ffe9ff);display:flex;align-items:center;justify-content:center;font-weight:800; font-size:11px;color:#222;border:1px dashed rgba(0,0,0,0.06);position:relative}
+  .slot.empty{opacity:0.35}
+  .slot .name{font-size:11px}
+
+  .floating-username{position:absolute;top:40px;left:6px;font-weight:800;color:rgba(0,0,0,0.6)}
+
+  /* coin and brainrot badges */
+  .badge{display:inline-block;padding:6px 8px;border-radius:8px;font-weight:800}
+  .coin{background:linear-gradient(90deg,var(--neonyellow),#ffe37a)}
+  .brainrot{background:linear-gradient(90deg,var(--hotpink),var(--blue));color:white}
+
+  /* lobby */
+  .lobby{display:flex;gap:12px;align-items:center;justify-content:center;padding:18px;border-radius:12px;background:linear-gradient(90deg,rgba(0,180,255,0.12),rgba(255,45,212,0.12));color:#061; font-weight:900}
+
+  /* bottom bar / HUD */
+  .hud{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:linear-gradient(90deg,rgba(255,255,255,0.95),rgba(255,255,255,0.92));padding:10px 14px;border-radius:999px;box-shadow:0 14px 40px rgba(0,0,0,0.2)}
+  .controls{display:flex;gap:8px;align-items:center}
+
+  /* podium modal */
+  .podium{
+    position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.6));
+  }
+  .podium .box{background:white;padding:22px;border-radius:14px;width:90%;max-width:720px;text-align:center}
+  .podium .place{font-weight:900;padding:12px 0;font-size:18px}
+  .small-muted{font-size:12px;color:#333;margin-top:6px}
+
+  /* responsive */
+  @media (max-width:1000px){
+    main{flex-direction:column;padding:12px}
+    .hero-img{display:none}
+    .col-left{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<div class="swirl" aria-hidden="true"></div>
+
+<header>
+  <div class="profile">
+    <div class="avatar">L</div>
+    <div class="info">
+      <div class="name">Lila 💫</div>
+      <div class="handle">@steal-a-lila</div>
+    </div>
+  </div>
+
+  <div class="search-wrap" role="search" aria-label="Search">
+    <div class="search">
+      <input id="searchInput" placeholder="Search Steal-A-Lila servers, players and items...">
+      <button id="searchBtn">Search</button>
+    </div>
+  </div>
+
+  <div class="right-controls">
+    <button class="btn-ghost">Messages</button>
+    <button class="btn-ghost">Settings</button>
+    <button class="add-friend">+ Add Friends</button>
+  </div>
+</header>
+
+<main>
+  <div class="col-left">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-weight:900">Profile</div>
+          <div class="small">Steal-A-Brainrot theme</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:900;font-size:18px">Coins</div>
+          <div id="myCoins" style="font-weight:900">0</div>
+        </div>
+      </div>
+      <hr style="margin:10px 0">
+      <div style="display:flex;gap:8px">
+        <button class="btn-ghost" id="joinBtn">Join Queue</button>
+        <button class="btn-ghost" id="leaveBtn" disabled>Leave</button>
+      </div>
+      <div style="margin-top:10px;">
+        <div style="font-weight:900">Demo Controls</div>
+        <div class="small">Use Demo Speed to speed the round for testing</div>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+          <label class="small">Demo speed</label>
+          <select id="speedSelect">
+            <option value="1">Normal (1x)</option>
+            <option value="10">10x</option>
+            <option value="30" selected>30x (fast test)</option>
+            <option value="120">120x</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:900">Lobby</div>
+      <div id="lobbyBox" class="lobby" style="margin-top:8px">Waiting area • Steal-A-Lila • 0 / 6</div>
+      <div style="margin-top:10px">
+        <div style="font-weight:900">Players in Queue</div>
+        <ul id="playerList" style="margin:8px 0;padding-left:16px"></ul>
+      </div>
+    </div>
+
+    <div class="card small">
+      <div style="font-weight:900;margin-bottom:8px">Rules / Notes</div>
+      <ul>
+        <li>Each round: 6 players, 15 minutes (real). Demo speed speeds it up for testing.</li>
+        <li>Each base has 12 slots to hold brainrots.</li>
+        <li>Lock your base (70s) to prevent stealing.</li>
+        <li>Steal a brainrot by clicking on another player's brainrot; then return to your base and place it in an empty slot.</li>
+        <li>Coins spawn on map; 5 points per coin. Use coins to buy brainrots.</li>
+        <li>1st/2nd/3rd podium awards 50/25/15 coins.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="arena card">
+    <!-- hero image placeholder (replace with real image if you have it) -->
+    <div class="hero-img" id="heroImg" title="Replace this with your realistic image if you own it">
+      <!-- Simple stylized placeholder. Replace with <img src="your_image.jpg"> if you have rights. -->
+      <svg class="svg-placeholder" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration placeholder">
+        <defs>
+          <linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#fff0c9"/><stop offset="1" stop-color="#ffd65a"/></linearGradient>
+        </defs>
+        <rect rx="18" width="320" height="320" fill="url(#g1)"/>
+        <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" font-size="18" font-weight="800" fill="#2b2b2b">Stylized portrait placeholder</text>
+        <text x="50%" y="62%" dominant-baseline="middle" text-anchor="middle" font-size="11" fill="#2b2b2b">Replace this with your realistic image (must be user-owned)</text>
+      </svg>
+    </div>
+
+    <!-- bases grid 6 -->
+    <div class="bases" id="bases">
+      <!-- bases rendered by JS -->
+    </div>
+
+    <div class="hud" role="status">
+      <div class="controls">
+        <div class="small">Game time left: <span id="timeLeft">—</span></div>
+        <div style="width:10px"></div>
+        <button class="btn-ghost" id="lockBaseBtn" title="Lock your base for 70s">Lock My Base</button>
+        <button class="btn-ghost" id="buyBrainBtn">Buy Brainrot (5 coins)</button>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- podium modal -->
+<div class="podium" id="podiumModal" role="dialog" aria-hidden="true">
+  <div class="box">
+    <div style="font-size:22px;font-weight:900">Round Results</div>
+    <div id="podiumResults" style="margin-top:12px"></div>
+    <div style="margin-top:18px"><button id="closePod" class="btn-ghost">Close</button></div>
+  </div>
+</div>
+
+<script>
+/* Simple in-browser demo game engine
+   - Single-file demo suitable for GitHub Pages
+   - Important: for production hooking up with real multiplayer backend is required.
+*/
+
+// CONFIG
+const GAME_PLAYERS = 6;
+const SLOTS_PER_BASE = 12;
+const ROUND_SECONDS = 15 * 60; // 15 minutes real-time
+const BASE_LOCK_SECONDS = 70;
+const BRAINROT_COST = 5; // coins cost
+const COIN_VALUE = 5; // each coin is 5 points (as requested)
+const BRAINROT_SPAWN_SECONDS = 2; // new brainrots appear every 2s for purchase spawn pool (not auto assign)
+const COIN_SPAWN_SECONDS = 3;
+const COIN_LIFETIME = 60; // seconds
+const BAT_LIFETIME = 40;
+
+// Demo controls: speed multiplier from UI
+let speedMultiplier = Number(document.getElementById('speedSelect').value) || 30; // default fast for demo
+
+document.getElementById('speedSelect').addEventListener('change', e=>{
+  speedMultiplier = Number(e.target.value);
+});
+
+// state
+let my = {
+  id: 'you',
+  username: 'You',
+  coins: 0,
+  carrying: null, // {id,name,from}
+  baseIndex: null // assigned once game starts
+};
+
+const players = []; // players currently in queue or in game
+const queue = []; // queued players (for UI)
+const bases = []; // base objects
+
+const ui = {
+  basesEl: document.getElementById('bases'),
+  lobbyBox: document.getElementById('lobbyBox'),
+  playerList: document.getElementById('playerList'),
+  myCoins: document.getElementById('myCoins'),
+  timeLeft: document.getElementById('timeLeft'),
+  podiumModal: document.getElementById('podiumModal'),
+  podiumResults: document.getElementById('podiumResults')
+};
+
+// helper utilities
+function uid(prefix='id'){return prefix+Math.random().toString(36).slice(2,9)}
+function randName(){ const a=['Lilaca','Buda','Baca','Snoopy','Mochi','Zuzu','Nori','Puffy','Tiki','Bibi','Riri','Kiki']; const b=['budabaca','fluff','drip','pop','blink','swirl','glint','sprout']; return a[Math.floor(Math.random()*a.length)]+' '+b[Math.floor(Math.random()*b.length)]+Math.floor(Math.random()*99)}
+
+// initialize UI
+function renderLobby(){
+  ui.lobbyBox.textContent = `Waiting area • Steal-A-Lila • ${players.length} / ${GAME_PLAYERS}`;
+  ui.playerList.innerHTML = '';
+  players.forEach(p=>{
+    const li = document.createElement('li');
+    li.textContent = p.username + (p.id === my.id ? ' (You)' : '');
+    ui.playerList.appendChild(li);
+  });
+  ui.myCoins.textContent = my.coins;
+}
+
+// create 6 bases
+function initBases(){
+  ui.basesEl.innerHTML = '';
+  bases.length = 0;
+  for(let i=0;i<GAME_PLAYERS;i++){
+    const base = {
+      index:i,
+      id: 'base-'+i,
+      owner: null, // assigned when players join the game
+      lockedUntil: 0,
+      slots: Array.from({length:SLOTS_PER_BASE}, ()=>null) // each slot: brainrot or null
+    };
+    bases.push(base);
+    const baseEl = document.createElement('div');
+    baseEl.className = 'base';
+    baseEl.id = 'base-el-'+i;
+    baseEl.innerHTML = `
+      <div class="label" id="base-label-${i}">Base ${i+1}</div>
+      <div class="floating-username" id="base-user-${i}">—</div>
+      <div class="slots" id="slots-${i}"></div>
+      <div style="position:absolute;right:8px;bottom:8px;display:flex;gap:6px">
+        <div id="coins-${i}" class="badge coin small-muted">0</div>
+        <button class="btn-ghost" id="stealbtn-${i}">Steal from this base</button>
+      </div>
+    `;
+    ui.basesEl.appendChild(baseEl);
+
+    // fill slots
+    const slotsEl = baseEl.querySelector('#slots-'+i);
+    for(let s=0;s<SLOTS_PER_BASE;s++){
+      const slotEl = document.createElement('div');
+      slotEl.className = 'slot empty';
+      slotEl.id = `slot-${i}-${s}`;
+      slotEl.innerHTML = `<div class="name">empty</div>`;
+      slotsEl.appendChild(slotEl);
+
+      // place action: if carrying brainrot, click to place it
+      slotEl.addEventListener('click', ()=> {
+        if(!my.carrying) return;
+        if(base.owner && base.owner.id !== my.id) {
+          alert('You can only place brainrots in your own base!');
+          return;
+        }
+        // place if empty
+        if(base.slots[s]) { alert('Slot occupied'); return;}
+        base.slots[s] = my.carrying;
+        // if placed, clear carrying
+        my.carrying = null;
+        updateSlotUI(i,s);
+        renderHud();
+      });
+    }
+
+    // steal button: choose a brainrot randomly from that base if available
+    baseEl.querySelector('#stealbtn-'+i).addEventListener('click', ()=>{
+      if(!isInGame(my.id)) { alert('You must be in the game to steal'); return; }
+      if(bases[i].owner && bases[i].owner.id === my.id) { alert('Cannot steal from your own base'); return; }
+      attemptStealFromBase(i);
+    });
+  }
+}
+
+// UI update helpers
+function updateSlotUI(baseIndex, slotIndex){
+  const slotEl = document.getElementById(`slot-${baseIndex}-${slotIndex}`);
+  const slot = bases[baseIndex].slots[slotIndex];
+  if(slot){
+    slotEl.classList.remove('empty');
+    slotEl.innerHTML = `<div style="display:flex;gap:8px;align-items:center"><div class="brainrot badge brainrot">${slot.name.split(' ')[0]}</div><div class="name">${slot.name}</div></div>`;
