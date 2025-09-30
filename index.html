@@ -739,3 +739,218 @@ window.__game = {players,bases,my,tryStartIfReady,roundStart,roundEnd};
 </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steal-A-Lila 💖</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: radial-gradient(circle, hotpink, deepskyblue, yellow);
+    animation: swirl 10s infinite linear;
+    overflow: hidden;
+    color: white;
+  }
+
+  @keyframes swirl {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+  }
+
+  header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 70px;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1000;
+  }
+
+  .profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .profile img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid hotpink;
+  }
+
+  .search-bar input {
+    width: 400px;
+    height: 35px;
+    border-radius: 10px;
+    border: none;
+    text-align: center;
+    font-size: 16px;
+  }
+
+  .add-friends {
+    background: hotpink;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .add-friends:hover {
+    background: deepskyblue;
+  }
+
+  .game-container {
+    margin-top: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  canvas {
+    border: 5px solid neonyellow;
+    border-radius: 15px;
+    background: linear-gradient(to bottom, lightblue, hotpink);
+  }
+
+  .stats {
+    margin-top: 20px;
+    display: flex;
+    gap: 20px;
+    font-size: 20px;
+  }
+
+  .btn {
+    margin-top: 15px;
+    background: deepskyblue;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .btn:hover {
+    background: hotpink;
+  }
+
+</style>
+</head>
+<body>
+  <header>
+    <div class="profile">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/Roblox_Logo_2022.svg" alt="Profile">
+      <div>
+        <h3>My Profile</h3>
+        <p>Steal-A-Lila Pro 💅</p>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" placeholder="Search Steal-A-Lila Games...">
+    </div>
+
+    <button class="add-friends">➕ Add Friends</button>
+  </header>
+
+  <div class="game-container">
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+    <div class="stats">
+      <p>Coins: <span id="coins">0</span></p>
+      <p>Brainrots Collected: <span id="lilas">0</span></p>
+    </div>
+    <button class="btn" onclick="spawnLila()">Respawn More Lilas 💖</button>
+  </div>
+
+<script>
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+
+  let coins = 0;
+  let lilasCollected = 0;
+  let lilas = [];
+
+  // funny random Lila names
+  const names = ["Lilaca Budabaca", "Lilububu", "LixLeven", "Lilacaca", "LiloLala", "Lilooni", "Lilababa"];
+
+  class Lila {
+    constructor(x, y, speed, name, color, worth) {
+      this.x = x;
+      this.y = y;
+      this.speed = speed;
+      this.name = name;
+      this.color = color;
+      this.worth = worth;
+      this.width = 40;
+      this.height = 40;
+    }
+
+    draw() {
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 20, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "white";
+      ctx.font = "12px Arial";
+      ctx.fillText(this.name.split(" ")[0], this.x - 20, this.y - 25);
+    }
+
+    move() {
+      this.x += this.speed;
+    }
+  }
+
+  function spawnLila() {
+    const randomName = names[Math.floor(Math.random() * names.length)];
+    const colors = ["hotpink", "deepskyblue", "yellow"];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const worth = Math.floor(Math.random() * 5000) + 1000;
+    lilas.push(new Lila(0, Math.random() * 400 + 50, Math.random() * 2 + 1, randomName, color, worth));
+  }
+
+  // spawn lilas every 2 seconds
+  setInterval(spawnLila, 2000);
+
+  canvas.addEventListener("click", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    lilas.forEach((lila, index) => {
+      const dist = Math.hypot(clickX - lila.x, clickY - lila.y);
+      if (dist < 25) {
+        lilasCollected++;
+        coins += lila.worth;
+        lilas.splice(index, 1);
+        document.getElementById("coins").textContent = coins;
+        document.getElementById("lilas").textContent = lilasCollected;
+      }
+    });
+  });
+
+  function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    lilas.forEach((lila, index) => {
+      lila.move();
+      lila.draw();
+      if (lila.x > canvas.width + 20) lilas.splice(index, 1);
+    });
+    requestAnimationFrame(gameLoop);
+  }
+
+  gameLoop();
+</script>
+</body>
+</html>
