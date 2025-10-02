@@ -52,12 +52,6 @@
     font-size: 18px;
   }
 
-  .profile p {
-    margin: 0;
-    font-size: 12px;
-    opacity: 0.8;
-  }
-
   .search-bar input {
     width: 400px;
     height: 35px;
@@ -147,7 +141,7 @@
 </header>
 
 <div class="game-container">
-  <canvas id="gameCanvas" width="900" height="500"></canvas>
+  <canvas id="gameCanvas" width="900" height="600"></canvas>
   <div class="stats">
     <p>💰 Coins: <span id="coins">0</span></p>
     <p>🧠 Brainrots: <span id="brainrots">0</span></p>
@@ -155,20 +149,30 @@
   <button class="btn" onclick="spawnLila()">Respawn More Lilas 💖</button>
 </div>
 
-<div class="lobby">🏆 Welcome to the Steal-A-Lila Lobby 💖 Sit, jump & prepare to steal Lilas!</div>
+<div class="lobby">🏆 Welcome to the Steal-A-Lila Arena! 💅</div>
 
 <script>
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 let lilas = [];
+let bases = [];
 let coins = 0;
 let brainrots = 0;
-
 const sillyNames = [
   "Lilaca Budabaca", "Lilububu", "LixLeven", "Lilacaca",
   "Lilabelle", "Lilaboom", "Lilachoco", "Lilarose", "Lilashark", "Liladonut"
 ];
+
+// Define 8 bases positioned around the arena
+for (let i = 0; i < 8; i++) {
+  bases.push({
+    id: i + 1,
+    x: (i % 4) * 220 + 50,
+    y: i < 4 ? 30 : 400,
+    lilas: []
+  });
+}
 
 class Lila {
   constructor(x, y, speed, name, color, worth) {
@@ -178,7 +182,7 @@ class Lila {
     this.name = name;
     this.color = color;
     this.worth = worth;
-    this.radius = 20;
+    this.radius = 18;
   }
 
   draw() {
@@ -189,8 +193,8 @@ class Lila {
     ctx.closePath();
 
     ctx.fillStyle = "white";
-    ctx.font = "12px Arial";
-    ctx.fillText(this.name.split(" ")[0], this.x - 20, this.y - 25);
+    ctx.font = "11px Arial";
+    ctx.fillText(this.name.split(" ")[0], this.x - 18, this.y - 25);
   }
 
   move() {
@@ -202,12 +206,13 @@ function spawnLila() {
   const name = sillyNames[Math.floor(Math.random() * sillyNames.length)];
   const colors = ["hotpink", "deepskyblue", "lightblue"];
   const color = colors[Math.floor(Math.random() * colors.length)];
-  const worth = Math.floor(Math.random() * 10000) + 5000;
-  lilas.push(new Lila(0, Math.random() * 400 + 50, Math.random() * 3 + 1, name, color, worth));
+  const worth = Math.floor(Math.random() * 8000) + 2000;
+  lilas.push(new Lila(0, Math.random() * 300 + 150, Math.random() * 3 + 1, name, color, worth));
 }
 
 setInterval(spawnLila, 2000);
 
+// click handler to collect or steal lilas
 canvas.addEventListener("click", (e) => {
   const rect = canvas.getBoundingClientRect();
   const clickX = e.clientX - rect.left;
@@ -221,24 +226,53 @@ canvas.addEventListener("click", (e) => {
       brainrots++;
       document.getElementById("coins").textContent = coins;
       document.getElementById("brainrots").textContent = brainrots;
+
+      // put brainrot in your base if space is available
+      const myBase = bases[0]; // player base = base #1
+      if (myBase.lilas.length < 12) {
+        myBase.lilas.push(lila);
+      }
     }
   });
 });
 
+function drawBases() {
+  bases.forEach((base, i) => {
+    ctx.fillStyle = "rgba(255,255,255,0.3)";
+    ctx.fillRect(base.x, base.y, 100, 80);
+    ctx.strokeStyle = "white";
+    ctx.strokeRect(base.x, base.y, 100, 80);
+
+    ctx.fillStyle = "white";
+    ctx.font = "12px Poppins";
+    ctx.fillText(`Base ${base.id}`, base.x + 15, base.y - 5);
+
+    // draw brainrots in base
+    base.lilas.forEach((lila, idx) => {
+      const bx = base.x + 10 + (idx % 4) * 20;
+      const by = base.y + 20 + Math.floor(idx / 4) * 20;
+      ctx.beginPath();
+      ctx.arc(bx, by, 6, 0, Math.PI * 2);
+      ctx.fillStyle = lila.color;
+      ctx.fill();
+      ctx.closePath();
+    });
+  });
+}
+
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // draw "track"
+  // draw center track
   ctx.fillStyle = "#66ccff";
-  ctx.fillRect(0, 230, canvas.width, 40);
+  ctx.fillRect(0, 290, canvas.width, 20);
+
+  drawBases();
 
   lilas.forEach((lila, index) => {
     lila.move();
     lila.draw();
-
-    if (lila.x > canvas.width + 30) {
-      lilas.splice(index, 1);
-    }
+    if (lila.x > canvas.width + 30) lilas.splice(index, 1);
   });
 
   requestAnimationFrame(gameLoop);
